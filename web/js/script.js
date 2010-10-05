@@ -46,6 +46,23 @@ Activity.prototype.getActivity = function() {
 
 
 $(document).ready(function() {
+    
+    var socket = new io.Socket('10.138.188.31',{'port':'8000'}); 
+    socket.connect();
+    socket.on('connect',function(){log('connected');});
+    socket.on('message',function(message){
+        msg = $.parseJSON(message);
+        if (msg.clientId) {
+            $('#events').prepend('<span style="display:none">'+msg.clientId+','+msg.id+'</span><br/>');
+        }
+        else {
+            $('#events').prepend('<span style="display:none">'+msg[0]+','+msg[1]+'</span><br/>');
+        }
+        $('#events').children(':first').fadeIn('slow');
+        
+        
+    })
+    
     var activityStore = new ActivityQueue();
     var map = 
         {
@@ -76,10 +93,16 @@ $(document).ready(function() {
     // activity added listener    
     activityStore.addListener("activity_pushed",function(event) {
         log("activity " + event['activity'].id);
+        socket.send(JSON.stringify(event['activity']));
         $('#events').prepend('<span style="display:none">'+event['activity'].timedate + ' ' +event['activity'].id+'</span><br/>');
         $('#events').children(':first').fadeIn('slow');
     })
     
+    
+
+    //socket.on('connect', function(){ … }) 
+    //socket.on('message', function(){ … }) 
+    //socket.on('disconnect', function(){ … })
 
 
 });
