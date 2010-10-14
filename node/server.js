@@ -12,8 +12,6 @@ var requestHandler = function(request,response) {
     response.writeHeader(200, {'Content-Type': 'text/html'}); 
     response.write('<h1>Hello world</h1>'); 
     response.end();
-    
-    
 }
 
 server = http.createServer().addListener('request',requestHandler);

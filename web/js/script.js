@@ -45,6 +45,8 @@ Activity.prototype.getActivity = function() {
 }
 
 
+
+
 $(document).ready(function() {
     
     var socket = new io.Socket('10.138.188.31',{'port':'8000'}); 
@@ -64,6 +66,8 @@ $(document).ready(function() {
     })
     
     var activityStore = new ActivityQueue();
+    
+    
     var map = 
         {
             'testtag':'test activity',
