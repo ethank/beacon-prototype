@@ -43,24 +43,44 @@ var ActivityLogger = {
     ping_url: "",
     activity_queue: ActivityQueue(),
     
+    
     start: function(map) {
+        // setup the queue
+        ActivityLogger.activity_queue = new ActivityQueue();
+
+        // Setup SocketIO
+        
+        var socket = new io.Socket('10.138.188.31',{'port':'8889'});
+        socket.connect();
+        socket.on('connect',function() {log('connected')});
+        socket.on('message',function(message) {
+            log(message);
+        });
+        
+        this.socket = socket;
+        
         // setup the logger
         ActivityLogger.start_time = new Date().getTime();
+        
+        // Log start activity
+        var startactivity = new Activity();
+        startactivity.id = document.title.slice(0,50);
+        startactivity.activity = "start on load";
+        this.logActivity(startactivity);
+        
         ActivityLogger.last_activity = ActivityLogger.start_time;
         
         var updateLastActivity = function() {
             ActivityLogger.last_activity = new Date().getTime();
         };
-        // setup the queue
-        ActivityLogger.activity_queue = new ActivityQueue();
-        
+
         // setup the mapping of activities to events
         $.each(map, function(key,value) {
             $('#'+key).click(function() {
                 var activity = new Activity();
                 activity.id = key;
                 activity.activity = value;
-                ActivityLogger.activity_queue.addToQueue(activity.getActivity());
+                ActivityLogger.logActivity(activity);
                 updateLastActivity();
                 
                 });
@@ -75,6 +95,8 @@ var ActivityLogger = {
         }
         
         window.addEventListener('beforeunload', beforeUnload, false);
+       // window.setTimeout(ActivityLogger.ping,3000);
+        
         
         ActivityLogger.ping();
         
@@ -82,10 +104,26 @@ var ActivityLogger = {
     
 }
 
-ActivityLogger.ping = function(event) {
+
+// sends the activities
+ActivityLogger.ping = function() {
+    if (ActivityLogger.activity_queue.activities.length >0) {
+        ActivityLogger.socket.send(JSON.stringify(ActivityLogger.activity_queue.activities));
+        ActivityLogger.activity_queue.activities = [];
+    }
+    setTimeout(ActivityLogger.ping,3000);
     
 }
+
+
+// Log an activity
+ActivityLogger.logActivity = function(activity) {
+    this.activity_queue.addToQueue(activity.getActivity());
+}
+
+
 
 ActivityLogger.getActivityQueue = function() {
     return ActivityLogger.activity_queue;
 }
+
