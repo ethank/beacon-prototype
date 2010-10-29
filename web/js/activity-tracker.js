@@ -106,7 +106,7 @@ var ActivityLogger = {
         // ensure that before unloading, we send an exit event
         var beforeUnload = function() {
             var exit_activity = new Activity();
-            exit_activity.id = 'exit';
+            exit_activity.id = 'document';
             exit_activity.activity = 'exit page';
             ActivityLogger.ping('exit');
             socket.close();
