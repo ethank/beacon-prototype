@@ -34,73 +34,26 @@ ActivityQueue.prototype.getFromQueue = function() {
 
 $(document).ready(function() {
     /**
-    var socket = new io.Socket('10.138.188.31',{'port':'8000'}); 
-    socket.connect();
-    socket.on('connect',function(){log('connected');});
-    socket.on('message',function(message){
-        msg = $.parseJSON(message);
-        if (msg.clientId) {
-            $('#events').prepend('<span style="display:none">'+msg.clientId+','+msg.id+'</span><br/>');
-        }
-        else {
-            $('#events').prepend('<span style="display:none">'+msg[0]+','+msg[1]+'</span><br/>');
-        }
-        $('#events').children(':first').fadeIn('slow');
+        mapp is:
         
-        
-    })
+        key -> {event (ie, click, scroll, mouse move), activity}
+    */
+    //$(window).resize(function() {alert('resized')});
     
-    var activityStore = new ActivityQueue();
-    
-    
-
-    
-    log('document ready');
-
-    
-    // Event binding for the tagged ID's
-    $.each(map, function(key,value) {
-        $('#'+key).click(function() {
-            var activity = new Activity();
-            activity.id = key;
-            activity.activity = value;
-            activityStore.addToQueue(activity.getActivity());
-            
-            
-            });
-        
-    });
-    
-
-    
-    
-    // activity added listener    
-    activityStore.addListener("activity_pushed",function(event) {
-        log("activity " + event['activity'].id);
-        socket.send(JSON.stringify(event['activity']));
-        $('#events').prepend('<span style="display:none">'+event['activity'].timedate + ' ' +event['activity'].id+'</span><br/>');
-        $('#events').children(':first').fadeIn('slow');
-    })
-    **/
     var map = 
         {
-            'testtag':'test activity',
-            'tester':'test acrtivity2'
+            'testtag':{'activity':'test activity', 'event':'click'},
+            'tester':{'activity':'test acrtivity2','event':'click'},
+            'window':{'activity':'double clicked','event':'dblclick'}
             
         }
     
     ActivityLogger.start(map);
 
+    // Debugging
     ActivityLogger.getActivityQueue().addListener("activity_pushed",function(event) {
-        log("activity " + event['activity'].id);
-        //socket.send(JSON.stringify(event['activity']));
-        //$('#events').prepend('<span style="display:none">'+event['activity'].timedate + ' ' +event['activity'].id+'</span><br/>');
-        //$('#events').children(':first').fadeIn('slow');
+        log("activity " + event['activity'].id + " / " + event['activity'].activity);
     });
-
-    //socket.on('connect', function(){ … }) 
-    //socket.on('message', function(){ … }) 
-    //socket.on('disconnect', function(){ … })
 
 
 });

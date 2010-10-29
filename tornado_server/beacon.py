@@ -28,7 +28,7 @@ class IndexHandler(tornado.web.RequestHandler):
 
 
 def somefunc():
-    time.sleep(5)
+    #time.sleep(5)
     return os.getpid()
 
 class BeaconHandler(SocketIOHandler):

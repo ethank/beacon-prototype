@@ -56,7 +56,7 @@ var ActivityLogger = {
         socket.on('message',function(message) {
             log(message);
         });
-        
+        socket.send('test');
         this.socket = socket;
         
         // setup the logger
@@ -75,15 +75,32 @@ var ActivityLogger = {
         };
 
         // setup the mapping of activities to events
+        
+        
         $.each(map, function(key,value) {
-            $('#'+key).click(function() {
-                var activity = new Activity();
-                activity.id = key;
-                activity.activity = value;
-                ActivityLogger.logActivity(activity);
-                updateLastActivity();
-                
-                });
+            var updateFunction = function() {
+                    var activity = new Activity();
+                    activity.id = key + ":" + value['event'];
+                    activity.activity = value['activity'];
+                    ActivityLogger.logActivity(activity);
+                    updateLastActivity();
+
+                    };
+            
+            // key = the ID or window/document
+            // value contains bind event + activity
+            
+            if (key == 'window') {
+                $(window).bind(value['event'],updateFunction);
+            }
+            else if (key == 'document') {
+                $(document).bind(value['event'],updateFunction);
+            }
+            else {
+                $('#'+key).bind(value['event'],updateFunction);
+            }
+            
+            
 
         });
         // ensure that before unloading, we send an exit event
@@ -92,6 +109,7 @@ var ActivityLogger = {
             exit_activity.id = 'exit';
             exit_activity.activity = 'exit page';
             ActivityLogger.ping('exit');
+            socket.close();
         }
         
         window.addEventListener('beforeunload', beforeUnload, false);
